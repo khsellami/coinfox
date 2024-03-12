@@ -7,6 +7,7 @@ import VirtualizedSelect from 'react-virtualized-select'
 import 'react-select/dist/react-select.css';
 import 'react-virtualized/styles.css'
 import 'react-virtualized-select/styles.css'
+import { showNotification } from './Notifications';
 
 const Title = styled.h3`
   color: white;
@@ -96,7 +97,10 @@ class AddCoin extends Component {
       ticker: "",
       avg_cost_basis: "",
       hodl: ""
-    })
+    });
+    
+    // Show success notification
+    showNotification('success', `${payload.ticker.toUpperCase()} added to your portfolio!`);
   }
 
   onChange = (item, e) => {

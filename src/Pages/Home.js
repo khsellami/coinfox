@@ -4,6 +4,8 @@ import { isUserSignedIn } from 'blockstack';
 
 import Pie from './Pie';
 import TotalPortfolio from '../Components/TotalPortfolio';
+import PortfolioSummary from '../Components/PortfolioSummary';
+import SearchFilter from '../Components/SearchFilter';
 import CoinList from '../Components/CoinList';
 import CurrencyPref from '../Components/CurrencyPref';
 import AddCoin from '../Components/AddCoin';
@@ -15,7 +17,10 @@ class Home extends Component {
   constructor () {
     super()
     this.state = {
-      listView: true
+      listView: true,
+      searchTerm: '',
+      activeFilter: 'all',
+      sortBy: 'value'
     }
   }
 
@@ -31,6 +36,18 @@ class Home extends Component {
 
   toggleView = () => {
     this.setState({listView: !this.state.listView});
+  }
+
+  handleSearch = (searchTerm) => {
+    this.setState({ searchTerm });
+  }
+
+  handleFilter = (filter) => {
+    this.setState({ activeFilter: filter });
+  }
+
+  handleSort = (sortBy) => {
+    this.setState({ sortBy });
   }
   render() {
     const coinz = Object.keys(this.props.coinz).length > 0 ? this.props.coinz : false;
@@ -50,6 +67,23 @@ class Home extends Component {
               coinz={this.props.coinz}
               key={"TotalPortfolio"}/>
           </div>
+          
+          <PortfolioSummary
+            totalPortfolio={this.props.totalPortfolio}
+            marketData={this.props.marketData}
+            coinz={this.props.coinz}
+            currency={this.props.currency}
+            exchangeRate={this.props.exchangeRate}
+          />
+          
+          <SearchFilter
+            onSearch={this.handleSearch}
+            onFilter={this.handleFilter}
+            onSort={this.handleSort}
+            searchTerm={this.state.searchTerm}
+            activeFilter={this.state.activeFilter}
+            sortBy={this.state.sortBy}
+          />
           <div className="toggleView">
             <i onClick={this.toggleView} className={this.state.listView ? "fa fa-lg fa-pie-chart" : "fa fa-lg fa-th-list"} aria-hidden="true"></i>
           </div>
@@ -64,6 +98,9 @@ class Home extends Component {
             exchangeRate={this.props.exchangeRate}
             marketData={this.props.marketData}
             coinz={this.props.coinz}
+            searchTerm={this.state.searchTerm}
+            activeFilter={this.state.activeFilter}
+            sortBy={this.state.sortBy}
             key={"CoinList"}/>}
         </div>
       );

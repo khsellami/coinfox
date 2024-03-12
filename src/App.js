@@ -17,6 +17,7 @@ import SupportedCoins from './Pages/SupportedCoins';
 
 import './App.css';
 import Blockstack from "./Components/Blockstack";
+import NotificationSystem from "./Components/Notifications";
 
 import { translationStrings } from './Utils/i18n';
 const string = translationStrings();
@@ -541,6 +542,7 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div>
+          <NotificationSystem />
           <Switch>
             <Route exact path="/"
               render={
