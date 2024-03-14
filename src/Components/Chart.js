@@ -108,7 +108,10 @@ class Chart extends Component {
     const endpoint = 'https://min-api.cryptocompare.com/data/histoday?aggregate=1&e=CCCAGG&extraParams=CryptoCompare&fsym='+ ticker +'&limit=365&tryConversion=false&tsym=' + currency;
 
     fetch(endpoint)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((res)=>{
 
         if (res.Response === "Success") {
@@ -137,6 +140,11 @@ class Chart extends Component {
           this.setState({time_series: []});
           this.chart && this.chart.destroy();
         }
+      })
+      .catch((e) => {
+        console.warn('Failed to load chart data', e);
+        this.setState({time_series: []});
+        this.chart && this.chart.destroy();
       })
   }
 

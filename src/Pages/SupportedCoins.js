@@ -26,18 +26,24 @@ class SupportedCoins extends Component {
   }
 
   componentWillMount () {
-
     fetch("https://api.coingecko.com/api/v3/coins/list")
-      .then(res => res.json())
-      .then(coins => 
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(coins => {
         this.setState({
           supported: coins.map(c => ({
-            "code": c.symbol, // ticker
+            "code": c.symbol,
             "name": c.name,
             "statuses": ["primary"]
-          }
-          )) })   
-    )
+          }))
+        })
+      })
+      .catch((e) => {
+        console.warn('Failed to load supported coins', e);
+        this.setState({ supported: [] });
+      })
 
   }
 

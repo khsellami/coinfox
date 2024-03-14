@@ -295,3 +295,4 @@ const CoinAnalytics = ({ coin, marketData, currency, exchangeRate }) => {
 };
 
 export default CoinAnalytics;
+

@@ -110,21 +110,27 @@ class AddCoin extends Component {
 
   componentWillMount () {
     fetch("https://api.coingecko.com/api/v3/coins/list")
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then(coins => {
-          // https://stackoverflow.com/a/40969739/1580610
-          if (this.refs.addRef) {
-            this.setState({
-              options: coins.map(c => ({
-                "code": c.symbol, // ticker
-                "name": c.name,
-                "statuses": ["primary"]
-              }
-              ))
-            })
-          }
-      }
-      )
+        if (this.refs.addRef) {
+          this.setState({
+            options: coins.map(c => ({
+              "code": c.symbol,
+              "name": c.name,
+              "statuses": ["primary"]
+            }))
+          })
+        }
+      })
+      .catch((e) => {
+        console.warn('Failed to load coins list', e);
+        if (this.refs.addRef) {
+          this.setState({ options: [] });
+        }
+      })
   }
   handleTickerChange = (selected_ticker) => {
     this.setState({ selected_ticker });

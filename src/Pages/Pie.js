@@ -6,12 +6,17 @@ import Highcharts from 'highcharts'
 class Pie extends Component {
   _chartOptions(){
     let data = []
+    const marketData = this.props.marketData || {};
+    const totalValue = (this.props.totalPortfolio && this.props.totalPortfolio.totalValue) || 0;
     for (const coin in this.props.coinz) {
-      const holding = this.props.coinz[coin].hodl;
-      const price = Number(this.props.marketData[coin].ticker.price) * this.props.exchangeRate;
+      const holding = this.props.coinz[coin] && this.props.coinz[coin].hodl || 0;
+      const priceObj = marketData[coin] && marketData[coin].ticker;
+      const price = priceObj && typeof priceObj.price !== 'undefined' ? Number(priceObj.price) * this.props.exchangeRate : 0;
+      const value = holding * price;
+      const y = totalValue > 0 ? (value / totalValue) : 0;
       data.push({
         name: coin.toUpperCase(),
-        y: (holding * price) / this.props.totalPortfolio.totalValue
+        y: y
       })
     }
 

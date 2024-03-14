@@ -285,3 +285,4 @@ const Dashboard = ({ totalPortfolio, marketData, coinz, currency, exchangeRate }
 };
 
 export default Dashboard;
+

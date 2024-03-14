@@ -489,3 +489,4 @@ const SmartAlerts = ({ coinz, marketData, currency }) => {
 };
 
 export default SmartAlerts;
+

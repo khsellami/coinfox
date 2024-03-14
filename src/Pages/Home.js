@@ -55,7 +55,7 @@ class Home extends Component {
     if (coinz) {
       return (
         <div className="Home">
-          <div className="header">
+          <div className="header" style={{ position: 'relative' }}>
             <Link className="menu" key='Menu' to='/menu'>
               <i className="btn-menu fa fa-lg fa-bars" aria-hidden="true"></i>
             </Link>

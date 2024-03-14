@@ -261,41 +261,74 @@ class App extends Component {
   // }
 
   marketData = async (userCoinz) => {
-    let marketData = {};
-
-    const userTickers = Object.keys(userCoinz);
-
-    const usersCoinList = (await fetch("https://api.coingecko.com/api/v3/coins/list")
-      .then(res => res.json()))
-      .filter(coin => userTickers.includes(coin.symbol))
-    const usersCoinIds = usersCoinList.map(coin => coin.id)
-
-    // @TODO modify price based on userPref
-    const currency = "usd";
-    const usersMarketData = (await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${usersCoinIds.join("%2C")}&vs_currencies=${currency}&include_24hr_vol=true&include_24hr_change=true`)
-      .then(res => res.json()))
-
-
-    userTickers.forEach(t => {
-      try {
-        const meta = usersCoinList.find(c => c.symbol === t);
-        const marketDataz = usersMarketData[meta.id]
-        marketData[t] = {
-          ticker: {
-            base: t.toUpperCase(),
-            target: currency.toUpperCase(),
-            price: marketDataz[currency],
-            volume: marketDataz.usd_24h_vol,
-            change: marketDataz.usd_24h_change
-          },
-          "timestamp": Math.floor(new Date().getTime() / 100), "success": true, "error": ""
-        }
-      } catch (e) {
-        console.log(e, `ticker not found in market data: ${t}`)
+    try {
+      if (!userCoinz || Object.keys(userCoinz).length === 0) {
+        this.setState({ marketData: {} });
+        return;
       }
 
-    })
-    this.setState({ marketData });
+      let marketData = {};
+      const userTickers = Object.keys(userCoinz);
+
+      // Fetch full list to map symbol -> id
+      let usersCoinList = [];
+      try {
+        const listRes = await fetch("https://api.coingecko.com/api/v3/coins/list");
+        if (!listRes.ok) throw new Error(`Coins list HTTP ${listRes.status}`);
+        const allCoins = await listRes.json();
+        usersCoinList = allCoins.filter(coin => userTickers.includes(coin.symbol));
+      } catch (e) {
+        console.warn('Failed to fetch coins list', e);
+        this.setState({ marketData: {} });
+        return;
+      }
+
+      const usersCoinIds = usersCoinList.map(coin => coin.id);
+      if (usersCoinIds.length === 0) {
+        this.setState({ marketData: {} });
+        return;
+      }
+
+      // @TODO modify price based on userPref
+      const currency = "usd";
+      let usersMarketData = {};
+      try {
+        const priceRes = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${usersCoinIds.join("%2C")}&vs_currencies=${currency}&include_24hr_vol=true&include_24hr_change=true`);
+        if (!priceRes.ok) throw new Error(`Price HTTP ${priceRes.status}`);
+        usersMarketData = await priceRes.json();
+      } catch (e) {
+        console.warn('Failed to fetch price data', e);
+        this.setState({ marketData: {} });
+        return;
+      }
+
+      userTickers.forEach(t => {
+        try {
+          const meta = usersCoinList.find(c => c.symbol === t);
+          if (!meta) return;
+          const dataForId = usersMarketData[meta.id];
+          if (!dataForId) return;
+          marketData[t] = {
+            ticker: {
+              base: t.toUpperCase(),
+              target: currency.toUpperCase(),
+              price: dataForId[currency],
+              volume: dataForId.usd_24h_vol,
+              change: dataForId.usd_24h_change
+            },
+            timestamp: Math.floor(new Date().getTime() / 100),
+            success: true,
+            error: ""
+          }
+        } catch (e) {
+          console.log(e, `ticker not found in market data: ${t}`)
+        }
+      });
+      this.setState({ marketData });
+    } catch (e) {
+      console.warn('marketData error', e);
+      this.setState({ marketData: {} });
+    }
   }
 
   readLocalStorage() {
