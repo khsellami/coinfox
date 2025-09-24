@@ -105,25 +105,13 @@ I implemented and verified the core portfolio alerting features and extended the
 
 ## How to test locally
 
-1. Install dependencies and start the app:
+. Install dependencies and start the app:
 
 ```bash
-npm install
+npm install --legacy-peer-deps
 npm start
 ```
 
-2. Test price alerts:
-- Open a coin detail page: `http://localhost:3000/coin/<SYMBOL>` (e.g. `/coin/btc`).
-- In the "Price Alerts" section enter a target price, select "Above" or "Below" and click "Set Alert".
-- Alerts are saved to Gaia if the user is signed in with Blockstack (visit `/blockstack`), otherwise they are stored in `localStorage`.
-
-3. Simulate / observe triggers:
-- The app evaluates alerts every 30 seconds (polling). To test faster, temporarily change the `30000` interval in `src/App.js` (the `setInterval`) to `5000`.
-- When an alert triggers a notification is dispatched and `AlertNotification` appears (bottom-left). Use Acknowledge or Dismiss to test status updates.
-
-4. Verify storage:
-- If signed in with Blockstack: check `coinfox_alerts.json` in Gaia (Blockstack dev tools).
-- Otherwise: in DevTools check `localStorage.getItem('alerts')`.
 
 ## Key files changed / to review
 
