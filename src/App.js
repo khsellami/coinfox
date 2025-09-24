@@ -529,8 +529,9 @@ class App extends Component {
       } catch (e) {
         console.warn('Alert evaluation failed', e);
       }
-    }, 30000);
 
+    }, 30000);
+  }
 
   componentWillUnmount() {
     if (this.alertInterval) clearInterval(this.alertInterval);
@@ -696,6 +697,7 @@ class App extends Component {
             <Route path="/supportedcoins" component={SupportedCoins} />
 
           </Switch>
+
         </div>
       </BrowserRouter>
     );
