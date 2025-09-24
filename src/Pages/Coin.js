@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 import Chart from "../Components/Chart";
+import PriceAlert from '../Components/PriceAlert';
 import { $numberWithCommas, $currencySymbol, returnMultiple } from '../Utils/Helpers';
 import {translationStrings} from '../Utils/i18n';
 
@@ -142,7 +143,12 @@ class Coin extends Component {
             </span>
           </div>
 
-          <div className="trash listCoin">
+            <div style={{ marginTop: 12 }}>
+              <h4>Price Alerts</h4>
+              <PriceAlert coin={coin} onSaved={(a) => console.log('alert saved', a)} />
+            </div>
+
+            <div className="trash listCoin">
             <span className="left">
             </span>
             <span className="right">

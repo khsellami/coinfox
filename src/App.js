@@ -14,10 +14,13 @@ import Coin from './Pages/Coin';
 import Pie from './Pages/Pie';
 import Menu from './Pages/Menu';
 import SupportedCoins from './Pages/SupportedCoins';
+import Analytics from './Pages/Analytics';
 
 import './App.css';
 import Blockstack from "./Components/Blockstack";
 import NotificationSystem from "./Components/Notifications";
+import AlertNotification from './Components/AlertNotification';
+import { loadAlerts, saveAlerts, evaluateAlertsWithMarketData, updateAlertStatus } from './Utils/alertHelpers';
 
 import { translationStrings } from './Utils/i18n';
 const string = translationStrings();
@@ -501,6 +504,36 @@ class App extends Component {
       this.fetchExchangeRates();
     }
 
+    // start polling to evaluate alerts every 30 seconds
+    this.alertInterval = setInterval(async () => {
+      try {
+        const alerts = await loadAlerts();
+        if (!alerts || Object.keys(alerts).length === 0) return;
+        const exchangeRate = this.state.exchangeRates[this.state.pref.currency] || 1;
+        const triggeredIds = evaluateAlertsWithMarketData(alerts, this.state.marketData, exchangeRate);
+        if (triggeredIds && triggeredIds.length > 0) {
+          // mark triggered alerts and notify user
+          for (const id of triggeredIds) {
+            await updateAlertStatus(id, 'triggered');
+            // find alert to show message
+            for (const coin in alerts) {
+              const a = alerts[coin].find(x => x.id === id);
+              if (a) {
+                window.dispatchEvent(new CustomEvent('showNotification', { detail: { type: 'success', message: `Alert: ${a.coin} ${a.type} ${a.targetPrice}` } }));
+              }
+            }
+          }
+          // store triggered ids for UI
+          this.setState({ triggeredAlerts: triggeredIds });
+        }
+      } catch (e) {
+        console.warn('Alert evaluation failed', e);
+      }
+    }, 30000);
+
+
+  componentWillUnmount() {
+    if (this.alertInterval) clearInterval(this.alertInterval);
   }
 
   saveNewPref = (name, value) => {
@@ -576,6 +609,7 @@ class App extends Component {
       <BrowserRouter>
         <div>
           <NotificationSystem />
+          <AlertNotification triggeredAlerts={this.state.triggeredAlerts || []} />
           <Switch>
             <Route exact path="/"
               render={
@@ -644,6 +678,17 @@ class App extends Component {
                   supportedCurrencies={this.state.supportedCurrencies}
                   currency={this.state.pref && this.state.pref.currency || "USD"}
                   language={this.state.pref && this.state.pref.language || "EN"}
+                />
+              }
+            />
+
+            <Route path="/analytics"
+              render={
+                (props) => <Analytics {...props}
+                  coinz={this.state.coinz}
+                  marketData={this.state.marketData}
+                  exchangeRate={exchangeRate}
+                  currency={this.state.pref && this.state.pref.currency || "USD"}
                 />
               }
             />

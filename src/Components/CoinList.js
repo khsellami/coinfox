@@ -5,6 +5,7 @@ import { translationStrings } from '../Utils/i18n';
 import QuickActions from './QuickActions';
 import styled from 'styled-components';
 import { showNotification } from './Notifications';
+import { loadAlerts } from '../Utils/alertHelpers';
 
 const CoinListContainer = styled.div`
   padding: 0 20px;
@@ -124,6 +125,11 @@ class CoinList extends Component {
     this.state = {
       favorites: JSON.parse(localStorage.getItem('coinFavorites') || '[]')
     };
+  }
+
+  async componentDidMount() {
+    const alerts = await loadAlerts();
+    this.setState({ alerts });
   }
 
   toggleFavorite = (coin) => {
@@ -266,6 +272,9 @@ class CoinList extends Component {
                 <CoinDetails>
                   <CoinName>{coinData.coin.toUpperCase()}</CoinName>
                   <CoinQuantity>{coinData.coinRound} {string.coins}</CoinQuantity>
+                  {this.state.alerts && this.state.alerts[coinData.coin] && this.state.alerts[coinData.coin].length > 0 && (
+                    <div style={{ marginTop: 6, color: '#ffd700', fontSize: 12 }}>{this.state.alerts[coinData.coin].length} alert(s)</div>
+                  )}
                 </CoinDetails>
               </CoinInfo>
 
